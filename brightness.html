@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GetUserMedia Brightness Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        video {
+            width: 80%;
+            max-width: 640px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        input[type="range"] {
+            width: 80%;
+            max-width: 640px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Brightness Adjustment</h1>
+    <video id="video" autoplay></video>
+    <label for="brightness">Adjust Brightness:</label>
+    <input id="brightness" type="range" min="0" max="2" step="0.1" value="1">
+
+    <script>
+        const video = document.getElementById('video');
+        const brightnessSlider = document.getElementById('brightness');
+
+        // Request access to the webcam
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                brightness: 1 // Default brightness setting
+            }
+        })
+        .then((stream) => {
+            const track = stream.getVideoTracks()[0];
+            const capabilities = track.getCapabilities();
+
+            if (capabilities.brightness) {
+                brightnessSlider.min = capabilities.brightness.min || 0;
+                brightnessSlider.max = capabilities.brightness.max || 2;
+                brightnessSlider.step = capabilities.brightness.step || 0.1;
+                brightnessSlider.value = 1;
+            }
+
+            brightnessSlider.addEventListener('input', () => {
+                const constraints = {
+                    advanced: [{ brightness: parseFloat(brightnessSlider.value) }]
+                };
+                track.applyConstraints(constraints).catch((error) => {
+                    console.error('Failed to apply brightness constraint:', error);
+                });
+            });
+
+            video.srcObject = stream;
+        })
+        .catch((error) => {
+            console.error('Error accessing webcam:', error);
+            alert('Unable to access webcam. Please check your camera permissions.');
+        });
+    </script>
+</body>
+</html>
