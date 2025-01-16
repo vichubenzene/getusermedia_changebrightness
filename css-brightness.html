@@ -11,9 +11,37 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            /* height: 100vh; */
             margin: 0;
             background-color: #f4f4f4;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .nav-links {
+            margin-top: 10px;
+        }
+        .nav-links a {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .selected {
+            background-color: grey !important;
+        }
+        .nav-links a:hover {
+            background-color: #0056b3;
         }
         video {
             width: 80%;
@@ -29,7 +57,16 @@
     </style>
 </head>
 <body>
-    <h1>Webcam Brightness Adjustment</h1>
+
+    <h1>Choose a Brightness Adjustment Method</h1>
+    
+    <div class="nav-links">
+        <a href="mediastreamChagner.html">Media stream Brightness Adjustment</a>
+        <a href="css-brightness.html" class="selected">CSS Brightness Adjustment </a>
+        <a href="canvas-brightness.html">Canvas Brightness Adjustment (CPU high)</a>
+    </div>
+
+    <h1>CSS Brightness Adjustment</h1>
     <video id="video" autoplay></video>
     <label for="brightness">Adjust Brightness (CSS):</label>
     <input id="brightness" type="range" min="0" max="2" step="0.1" value="1">
