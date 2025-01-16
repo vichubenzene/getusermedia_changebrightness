@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GetUserMedia Brightness Test with Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        canvas {
+            width: 80%;
+            max-width: 640px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        input[type="range"] {
+            width: 80%;
+            max-width: 640px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Brightness Adjustment with Canvas</h1>
+    <canvas id="canvas"></canvas>
+    <label for="brightness">Adjust Brightness (Canvas):</label>
+    <input id="brightness" type="range" min="0" max="2" step="0.1" value="1">
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const brightnessSlider = document.getElementById('brightness');
+        const video = document.createElement('video');
+
+        // Request access to the webcam
+        navigator.mediaDevices.getUserMedia({
+            video: true
+        })
+        .then((stream) => {
+            video.srcObject = stream;
+            video.play();
+            video.addEventListener('loadedmetadata', () => {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                drawCanvasFrame();
+            });
+        })
+        .catch((error) => {
+            console.error('Error accessing webcam:', error);
+            alert('Unable to access webcam. Please check your camera permissions.');
+        });
+
+        // Function to draw the video frame onto the canvas with brightness adjustment
+        function drawCanvasFrame() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let data = imageData.data;
+
+            const brightness = parseFloat(brightnessSlider.value);
+
+            // Loop through every pixel and adjust the RGB values
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = data[i] * brightness;     // Red
+                data[i + 1] = data[i + 1] * brightness; // Green
+                data[i + 2] = data[i + 2] * brightness; // Blue
+            }
+
+            // Put the updated pixel data back onto the canvas
+            ctx.putImageData(imageData, 0, 0);
+            requestAnimationFrame(drawCanvasFrame);
+        }
+
+        // Adjust the canvas brightness via the slider
+        brightnessSlider.addEventListener('input', () => {
+            drawCanvasFrame();  // Redraw the canvas with updated brightness
+        });
+    </script>
+</body>
+</html>
