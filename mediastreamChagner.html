@@ -15,12 +15,6 @@
             margin: 0;
             background-color: #f4f4f4;
         }
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            background-color: #f4f4f4;
-        }
         h1 {
             margin-top: 20px;
         }
@@ -41,7 +35,7 @@
             background-color: #0056b3;
         }
         .selected {
-            background-color: grey   !important;
+            background-color: grey !important;
         }
         video {
             width: 80%;
@@ -50,9 +44,19 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        input[type="range"] {
+        .slider-container {
+            display: flex;
+            align-items: center;
             width: 80%;
             max-width: 640px;
+            margin-bottom: 20px;
+        }
+        input[type="range"] {
+            width: 90%;
+        }
+        input[type="number"] {
+            width: 10%;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -66,15 +70,23 @@
         <a href="canvas-brightness.html">Canvas Brightness Adjustment (CPU high)</a>
     </div>
 
-
     <h1>Media stream Brightness Adjustment</h1>
     <video id="video" autoplay></video>
     <label for="brightness">Adjust Brightness:</label>
-    <input id="brightness" type="range" min="0" max="2" step="0.1" value="1">
+    
+    <!-- Slider container with range and number input -->
+    <div class="slider-container">
+        <!-- Slider input -->
+        <input id="brightness" type="range" min="0" max="2" step="0.1" value="1">
+        
+        <!-- Number input -->
+        <input id="brightnessNumber" type="number" min="0.1" max="2" step="0.1" value="1" />
+    </div>
 
     <script>
         const video = document.getElementById('video');
         const brightnessSlider = document.getElementById('brightness');
+        const brightnessNumber = document.getElementById('brightnessNumber');
 
         // Request access to the webcam
         navigator.mediaDevices.getUserMedia({
@@ -91,11 +103,30 @@
                 brightnessSlider.max = capabilities.brightness.max || 2;
                 brightnessSlider.step = capabilities.brightness.step || 0.1;
                 brightnessSlider.value = 1;
+                brightnessNumber.min = capabilities.brightness.min || 0.1;
+                brightnessNumber.max = capabilities.brightness.max || 2;
+                brightnessNumber.step = capabilities.brightness.step || 0.1;
+                brightnessNumber.value = 1;
             }
 
+            // Sync the number input with the slider
             brightnessSlider.addEventListener('input', () => {
+                const brightnessValue = parseFloat(brightnessSlider.value);
+                brightnessNumber.value = brightnessValue;
                 const constraints = {
-                    advanced: [{ brightness: parseFloat(brightnessSlider.value) }]
+                    advanced: [{ brightness: brightnessValue }]
+                };
+                track.applyConstraints(constraints).catch((error) => {
+                    console.error('Failed to apply brightness constraint:', error);
+                });
+            });
+
+            // Sync the slider with the number input
+            brightnessNumber.addEventListener('input', () => {
+                const brightnessValue = parseFloat(brightnessNumber.value);
+                brightnessSlider.value = brightnessValue;
+                const constraints = {
+                    advanced: [{ brightness: brightnessValue }]
                 };
                 track.applyConstraints(constraints).catch((error) => {
                     console.error('Failed to apply brightness constraint:', error);
